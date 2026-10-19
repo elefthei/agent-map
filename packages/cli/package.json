@@ -4,7 +4,8 @@
   "type": "module",
   "dependencies": {
     "@agent-map/core": "workspace:*",
-    "@agent-map/server": "workspace:*"
+    "@agent-map/server": "workspace:*",
+    "@agent-map/log-adaptors": "workspace:*"
   },
   "bin": {
     "agent-map": "./src/index.ts"

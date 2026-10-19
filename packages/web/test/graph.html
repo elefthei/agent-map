@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<meta charset="UTF-8">
+<title>Graph viewport regression check</title>
+<style>
+  body { font: 14px system-ui; margin: 20px; }
+  #graph { width: min(880px, calc(100vw - 40px)); height: min(500px, calc((100vw - 40px) / 2)); border: 1px solid; }
+</style>
+<h1>Graph viewport regression check</h1>
+<output id="result">Running…</output>
+<div id="graph"></div>
+<script type="module">
+import { Graph } from '../src/graph.ts';
+import { initialState, reduce } from '@agent-map/core';
+const container = document.querySelector('#graph'), result = document.querySelector('#result');
+const graph = new Graph(container, 'reads'), cy = graph.cy;
+let state = initialState();
+function visible(phase) {
+  const b = cy.elements().renderedBoundingBox();
+  if (b.x1 < -1 || b.y1 < -1 || b.x2 > cy.width() + 1 || b.y2 > cy.height() + 1) throw Error(`${phase}: graph or labels clipped: ${JSON.stringify(b)}`);
+}
+try {
+  for (let i = 0; i < 100; i++) {
+    const r = reduce(state, { session: 'chain', seq: i, path: `src/long-directory-for-labels/file-${i}.ts`, tool: 'read', op: 'read', origin: 'trace' });
+    state = r.state; graph.apply(r.diff, state.reads);
+    visible(`event ${i}`);
+    await new Promise(requestAnimationFrame);
+  }
+  await new Promise(resolve => setTimeout(resolve, 600));
+  visible('settled landscape');
+  if (cy.zoom() >= 0.15) throw Error('Large graph did not zoom below the old floor');
+  const landscape = cy.elements().boundingBox();
+  if (landscape.w <= landscape.h) throw Error('Landscape graph did not grow horizontally');
+  container.style.width = '320px'; container.style.height = '720px';
+  await new Promise(resolve => setTimeout(resolve, 100));
+  visible('portrait resize');
+  const portrait = cy.elements().boundingBox();
+  if (portrait.h <= portrait.w) throw Error('Portrait graph did not grow vertically');
+  graph.show(false);
+  container.style.width = '600px'; container.style.height = '350px';
+  await new Promise(resolve => setTimeout(resolve, 100));
+  graph.show(true); visible('hidden view resized');
+  graph.reset(state.reads); visible('seek snapshot');
+  const r = reduce(state, { session: 'disconnected', seq: 0, path: 'another/very-long-path/isolated-file.ts', tool: 'read', op: 'read', origin: 'trace' });
+  graph.apply(r.diff, r.state.reads); visible('disconnected node');
+  graph.reset(initialState().reads);
+  if (cy.nodes().length !== 0 || !Number.isFinite(cy.zoom())) throw Error('Empty snapshot did not reset');
+  graph.reset(state.reads); visible('restart');
+  await import('../src/style.css');
+  const main = document.createElement('main'), sidebar = document.createElement('aside'), canvas = document.createElement('section');
+  canvas.id = 'canvas';
+  for (let i = 0; i < 60; i++) {
+    const row = document.createElement('p'); row.textContent = 'Repository ' + i; sidebar.append(row);
+  }
+  main.append(sidebar, canvas); document.body.append(main);
+  canvas.append(container); container.style.cssText = 'position:absolute;inset:0;width:100%;height:100%';
+  await new Promise(resolve => setTimeout(resolve, 100));
+  visible('long sidebar');
+  if (canvas.clientHeight > innerHeight || sidebar.scrollHeight <= sidebar.clientHeight) throw Error('Session list stretched the graph beyond the screen');
+  result.textContent = 'PASS: every replay frame, labels, zoom-out, landscape/portrait resize, hidden view, seek, disconnected node, restart and scrollable sidebar';
+  document.documentElement.dataset.result = 'pass';
+} catch (error) {
+  result.textContent = 'FAIL: ' + error.message;
+  document.documentElement.dataset.result = 'fail';
+  throw error;
+}
+</script>
+</html>

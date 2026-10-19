@@ -5,7 +5,7 @@
   <header><div><strong>agent-map</strong><span class="subtitle">File access, in sequence.</span></div><span class="badge">SESSION REPLAY</span></header>
   <main>
     <aside>
-      <section><h2>01 / Sessions</h2><div id="sessions" aria-label="Available sessions">Loading sessions…</div></section>
+      <section><h2>01 / Sessions</h2><label>Log source<select id="source"></select></label><output id="source-dir" class="hint"></output><div id="sessions" aria-label="Available sessions">Loading sessions…</div></section>
       <section id="controls"><h2>02 / Replay</h2>
         <div class="settings"><label>Mode<select id="mode"><option value="fixed">Fixed interval</option><option value="scaled">Scaled time</option><option value="step">Single step</option></select></label><label>Speed<input id="speed" type="number" value="10" min="0.01" step="any"></label></div>
         <label>Pi branches<select id="branches"><option value="active">Active branch</option><option value="all">All branches</option></select></label>
@@ -18,7 +18,6 @@
       <section><h2>03 / View</h2><div class="views"><label><input type="radio" name="view" value="reads" checked>Reads</label><label><input type="radio" name="view" value="writes">Writes</label></div><div class="legend"><span>Less</span><i></i><span>More</span></div><p class="hint">Nodes count accesses. Arrows connect consecutive files within each session and view.</p></section>
     </aside>
     <section id="canvas" aria-label="File transition graph"><div class="canvas-label">ACCESS HEAT / <span id="view-label">READS</span></div><div id="cy-reads" role="img" aria-label="Reads heat graph"></div><div id="cy-writes" role="img" aria-label="Writes heat graph"></div><p id="empty">Your session, mapped.<br><span>Select a log, start a replay, then press Play.</span></p></section>
-    <section class="activity"><h2>Live diff <span id="event-count">0 ops</span></h2><ol id="ticker" aria-label="Recent graph changes"></ol></section>
     <section id="mermaid" hidden><h2>Replay output <span>MERMAID</span></h2><div class="outputs">
       <div><label for="mermaid-reads">Reads</label><textarea id="mermaid-reads" readonly spellcheck="false"></textarea><button data-copy="reads">Copy reads</button><button data-download="reads">Download reads</button></div>
       <div><label for="mermaid-writes">Writes</label><textarea id="mermaid-writes" readonly spellcheck="false"></textarea><button data-copy="writes">Copy writes</button><button data-download="writes">Download writes</button></div>

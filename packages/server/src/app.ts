@@ -6,9 +6,9 @@ import { serveStatic } from 'hono/bun';
 import { join } from 'node:path';
 import type { Source, View } from '@agent-map/core';
 import { Replay } from './replay';
-import { discover, fromArray, mergeSessions, openSession } from './sources';
+import { adaptorFor, adaptors, discover, fromArray, mergeSessions, openSession } from '@agent-map/log-adaptors';
 const createSchema = z.object({
-  sessionIds: z.array(z.string().regex(/^(pi|copilot|trace):.+/)).min(1),
+  sessionIds: z.array(z.string().regex(new RegExp(`^(${adaptors.map(a => a.source).join('|')}):.+`))).min(1),
   mode: z.enum(['fixed', 'scaled', 'step']).default('fixed'),
   speed: z.number().positive().default(10),
   branches: z.enum(['active', 'all']).default('active'),
@@ -18,10 +18,11 @@ const controlSchema = z.object({ action: z.enum(['play', 'pause', 'step', 'seek'
 const finished = (r: Replay) => r.status === 'stopped' || r.status === 'completed';
 export function createApp(replays: Map<string, Replay>, outDir: string): Hono {
   const app = new Hono();
+  app.get('/api/sources', c => c.json(adaptors.filter(a => a.dir).map(({ source, label, dir }) => ({ source, label, dir }))));
   app.get('/api/sessions', async c => {
     const source = c.req.query('source');
-    if (source !== undefined && source !== 'pi' && source !== 'copilot') return c.json({ error: 'invalid source' }, 400);
-    return c.json(await discover(source, c.req.query('repo')));
+    if (source !== undefined && !adaptors.some(a => a.source === source && a.dir)) return c.json({ error: 'invalid source' }, 400);
+    return c.json(await discover(source === undefined ? undefined : adaptorFor(source)!.source, c.req.query('repo')));
   });
   app.post('/api/replays', zValidator('json', createSchema), async c => {
     const { sessionIds, mode, speed, branches, follow } = c.req.valid('json');
@@ -38,7 +39,7 @@ export function createApp(replays: Map<string, Replay>, outDir: string): Hono {
       abort.abort();
       const error = e instanceof Error ? e.message : String(e);
       if (error.startsWith('session not found:')) return c.json({ error }, 404);
-      if (error === 'not a pi session file') return c.json({ error }, 400);
+      if (error === 'not a session file') return c.json({ error }, 400);
       throw e;
     }
   });

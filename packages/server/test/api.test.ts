@@ -5,20 +5,19 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { initialState, reduce, toMermaid, type FileEvent, type View } from '@agent-map/core';
-import { linesOf, parsePi } from '@agent-map/core/parsers';
 import type { Replay } from '../src/replay';
 const fixtures = fileURLToPath(new URL('../../../fixtures/', import.meta.url));
 process.env.PI_SESSIONS_DIR = join(fixtures, 'pi');
 process.env.COPILOT_SESSIONS_DIR = join(fixtures, 'copilot');
+process.env.OMP_SESSIONS_DIR = join(fixtures, 'omp');
 const { createApp } = await import('../src/app');
-const { fromArray, readLines } = await import('../src/sources');
-const { Replay: ReplayClass } = await import('../src/replay');
+const { adaptorFor, linesOf, readLines } = await import('@agent-map/log-adaptors');
 const outDir = await mkdtemp(join(tmpdir(), 'am-'));
 const replays = new Map<string, Replay>(), app = createApp(replays, outDir);
 const B = 'pi:11111111-1111-4111-8111-111111111111';
 const C = 'copilot:2f0b1c3e-0000-4000-8000-000000000001';
 const active: FileEvent[] = [];
-for await (const e of parsePi(linesOf(await Bun.file(join(fixtures, 'pi/--home-user-repo--/2026-10-01T10-00-00-000Z_11111111-1111-4111-8111-111111111111.jsonl')).text()))) active.push(e);
+for await (const e of adaptorFor('pi')!.parse(linesOf(await Bun.file(join(fixtures, 'pi/--home-user-repo--/2026-10-01T10-00-00-000Z_11111111-1111-4111-8111-111111111111.jsonl')).text()), { session: '11111111-1111-4111-8111-111111111111', branches: 'active', stream: false })) active.push(e);
 const expected = (k: number, v: View) => toMermaid(active.slice(0, k).reduce((s,e) => reduce(s,e).state, initialState()), v);
 const post = (p: string, body: unknown) => app.request(p, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
 const path = (id: string) => `/api/replays/${id}`;
@@ -33,11 +32,25 @@ async function create(options = {}) {
 }
 afterAll(async () => { await Promise.all([...replays.values()].map(r => r.stop())); await rm(outDir, { recursive: true, force: true }); });
 test('session discovery, sources and repository filter', async () => {
+  const sources = await app.request('/api/sources'); expect(sources.status).toBe(200);
+  expect(await sources.json()).toEqual([
+    { source: 'pi', label: 'Pi agent', dir: join(fixtures, 'pi') },
+    { source: 'copilot', label: 'Copilot CLI', dir: join(fixtures, 'copilot') },
+    { source: 'omp', label: 'OMP', dir: join(fixtures, 'omp') },
+  ]);
+  expect(await (await app.request('/api/sessions?source=omp')).json()).toEqual([expect.objectContaining({ id: 'omp:01a10000-0000-7000-8000-000000000001', repo: '/home/user/repo' })]);
   const pi = await app.request('/api/sessions?source=pi'); expect(pi.status).toBe(200);
   expect(await pi.json()).toEqual(expect.arrayContaining([expect.objectContaining({ id: B, repo: '/home/user/repo' }), expect.objectContaining({ id: 'pi:01a0f2df-4b2f-75bd-8355-e950fa6b5bcf' })]));
   expect(await (await app.request('/api/sessions?source=copilot')).json()).toEqual(expect.arrayContaining([expect.objectContaining({ id: C })]));
   expect(await (await app.request('/api/sessions?source=pi&repo=/nope')).json()).toEqual([]);
   expect((await app.request('/api/sessions?source=trace')).status).toBe(400);
+});
+test('OMP replay retains selector reads and multi-file hashline writes', async () => {
+  const { replay } = await create({ sessionIds: ['omp:01a10000-0000-7000-8000-000000000001'] });
+  expect(replay.events.length).toBe(4);
+  replay.seek(4);
+  expect(Object.keys(replay.state.writes.nodes).sort()).toEqual(['src/a.ts', 'src/b.ts', 'src/c.ts']);
+  expect(replay.state.reads.nodes).toEqual({ 'src/a.ts': 1 });
 });
 test('step twice, reject unfinished Mermaid, stop and persist event-prefix output', async () => {
   const { snap, replay, id } = await create(); expect(snap.status).toBe('created'); expect(replay.events.length).toBe(3);

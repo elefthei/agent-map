@@ -18,12 +18,17 @@
       },
       "dependencies": {
         "@agent-map/core": "workspace:*",
+        "@agent-map/log-adaptors": "workspace:*",
         "@agent-map/server": "workspace:*",
       },
     },
     "packages/core": {
       "name": "@agent-map/core",
+    },
+    "packages/log-adaptors": {
+      "name": "@agent-map/log-adaptors",
       "dependencies": {
+        "@agent-map/core": "workspace:*",
         "zod": "^4",
       },
     },
@@ -31,6 +36,7 @@
       "name": "@agent-map/server",
       "dependencies": {
         "@agent-map/core": "workspace:*",
+        "@agent-map/log-adaptors": "workspace:*",
         "@hono/zod-validator": "^0.7",
         "hono": "^4",
         "zod": "^4",
@@ -51,6 +57,8 @@
   },
   "packages": {
     "@agent-map/core": ["@agent-map/core@workspace:packages/core"],
+
+    "@agent-map/log-adaptors": ["@agent-map/log-adaptors@workspace:packages/log-adaptors"],
 
     "@agent-map/server": ["@agent-map/server@workspace:packages/server"],
 
