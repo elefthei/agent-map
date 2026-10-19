@@ -1,0 +1,16 @@
+{
+  "name": "@agent-map/server",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "hono": "^4",
+    "@hono/zod-validator": "^0.7",
+    "zod": "^4",
+    "@agent-map/core": "workspace:*"
+  },
+  "exports": {
+    ".": "./src/app.ts",
+    "./sources": "./src/sources.ts",
+    "./replay": "./src/replay.ts"
+  }
+}

@@ -1,0 +1,7 @@
+{"type":"session.start","id":"s1","parentId":null,"timestamp":"2026-10-02T09:00:00.000Z","data":{"sessionId":"2f0b1c3e-0000-4000-8000-000000000001","copilotVersion":"1.0.80","producer":"copilot-agent","context":{"cwd":"/home/user/repo"}}}
+{"type":"user.message","id":"u1","parentId":"s1","timestamp":"2026-10-02T09:00:01.000Z","data":{"content":"read a then edit b"}}
+{"type":"tool.execution_start","id":"t1","parentId":"u1","timestamp":"2026-10-02T09:00:02.000Z","data":{"toolCallId":"tc1","toolName":"view","arguments":{"path":"/home/user/repo/src/a.ts"}}}
+{"type":"tool.execution_complete","id":"t2","parentId":"t1","timestamp":"2026-10-02T09:00:03.000Z","data":{"toolCallId":"tc1","success":true}}
+{"type":"tool.execution_start","id":"t3","parentId":"t2","timestamp":"2026-10-02T09:00:04.000Z","data":{"toolCallId":"tc2","toolName":"edit","arguments":{"path":"/home/user/repo/src/b.ts","old_str":"x","new_str":"y"}}}
+{"type":"tool.execution_start","id":"t4","parentId":"t3","timestamp":"2026-10-02T09:00:05.000Z","data":{"toolCallId":"tc3","toolName":"bash","arguments":{"command":"ls"}}}
+{"type":"tool.execution_start","id":"t5","parentId":"t4","timestamp":"2026-10-02T09:00:06.000Z","data":{"toolCallId":"tc4","toolName":"view","arguments":{"path":"/home/user/repo/src/b.ts"}}}

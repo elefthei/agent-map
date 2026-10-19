@@ -1,0 +1,14 @@
+{
+  "read": {
+    "op": "read",
+    "path": "/path"
+  },
+  "write": {
+    "op": "write",
+    "path": "/path"
+  },
+  "edit": {
+    "op": "write",
+    "path": "/path"
+  }
+}

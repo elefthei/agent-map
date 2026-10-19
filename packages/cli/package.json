@@ -1,0 +1,12 @@
+{
+  "name": "agent-map",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@agent-map/core": "workspace:*",
+    "@agent-map/server": "workspace:*"
+  },
+  "bin": {
+    "agent-map": "./src/index.ts"
+  }
+}

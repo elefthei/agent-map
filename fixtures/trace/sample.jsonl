@@ -1,0 +1,2 @@
+{"op":"read","path":"src/a.ts","tool":"read"}
+{"op":"write","path":"src/a.ts","tool":"edit","ts":1700000000000}

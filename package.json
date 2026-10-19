@@ -1,0 +1,19 @@
+{
+  "name": "agent-map",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "bun test",
+    "server": "bun packages/server/src/index.ts",
+    "web": "bun run --cwd packages/web dev",
+    "build:web": "bun run --cwd packages/web build"
+  },
+  "devDependencies": {
+    "typescript": "^5",
+    "@earendil-works/pi-coding-agent": "^0.80.10",
+    "@earendil-works/pi-ai": "^0.80.10",
+    "bun-types": "latest"
+  }
+}

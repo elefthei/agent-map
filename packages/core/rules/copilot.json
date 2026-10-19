@@ -1,0 +1,14 @@
+{
+  "view": {
+    "op": "read",
+    "path": "/path"
+  },
+  "edit": {
+    "op": "write",
+    "path": "/path"
+  },
+  "create": {
+    "op": "write",
+    "path": "/path"
+  }
+}

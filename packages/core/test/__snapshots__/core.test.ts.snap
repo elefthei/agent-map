@@ -1,0 +1,36 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`deterministic Mermaid snapshots and independent session merge order 1`] = `
+"flowchart LR
+  n0["src/a.ts"]:::h0
+  n1["src/b.ts"]:::h0
+  n2["src/c.ts"]:::h0
+  n0 --> n1
+  n1 --> n2
+  classDef h0 fill:#1a9850,stroke:#1a9850,color:#000
+  classDef h1 fill:#66bd63,stroke:#66bd63,color:#000
+  classDef h2 fill:#a6d96a,stroke:#a6d96a,color:#000
+  classDef h3 fill:#d9ef8b,stroke:#d9ef8b,color:#000
+  classDef h4 fill:#ffffbf,stroke:#ffffbf,color:#000
+  classDef h5 fill:#fee08b,stroke:#fee08b,color:#000
+  classDef h6 fill:#fdae61,stroke:#fdae61,color:#000
+  classDef h7 fill:#f46d43,stroke:#f46d43,color:#000
+  classDef h8 fill:#d73027,stroke:#d73027,color:#000
+  linkStyle 0 stroke:#1a9850,stroke-width:2px
+  linkStyle 1 stroke:#1a9850,stroke-width:2px
+"
+`;
+
+exports[`deterministic Mermaid snapshots and independent session merge order 2`] = `
+"flowchart LR
+  classDef h0 fill:#1a9850,stroke:#1a9850,color:#000
+  classDef h1 fill:#66bd63,stroke:#66bd63,color:#000
+  classDef h2 fill:#a6d96a,stroke:#a6d96a,color:#000
+  classDef h3 fill:#d9ef8b,stroke:#d9ef8b,color:#000
+  classDef h4 fill:#ffffbf,stroke:#ffffbf,color:#000
+  classDef h5 fill:#fee08b,stroke:#fee08b,color:#000
+  classDef h6 fill:#fdae61,stroke:#fdae61,color:#000
+  classDef h7 fill:#f46d43,stroke:#f46d43,color:#000
+  classDef h8 fill:#d73027,stroke:#d73027,color:#000
+"
+`;
